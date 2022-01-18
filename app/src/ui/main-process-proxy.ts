@@ -143,7 +143,7 @@ function mergeDeferredContextMenuItems(
  * to english, it returns the item that can set it to their system language.
  */
 function getSpellCheckLanguageMenuItem(
-  session: Electron.session
+  session: Electron.Session
 ): IMenuItem | null {
   const userLanguageCode = remote.app.getLocale()
   const englishLanguageCode = 'en-US'
