@@ -357,13 +357,6 @@ app.on('ready', () => {
       }
     }
 
-    if (menuHasChanged && mainWindow) {
-      // https://github.com/electron/electron/issues/2717
-      Menu.setApplicationMenu(newMenu)
-      mainWindow.sendAppMenu()
-    }
-  })
-
   /**
    * An event sent by the renderer asking that the menu item with the given id
    * is executed (ie clicked).
