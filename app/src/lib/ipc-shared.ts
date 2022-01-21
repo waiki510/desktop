@@ -9,6 +9,7 @@ import { WindowState } from './window-state'
 import { IMenu } from '../models/app-menu'
 import { ILaunchStats } from './stats'
 import { URLActionType } from './parse-app-url'
+import { Architecture } from './get-architecture'
 
 /**
  * Defines the simplex IPC channel names we use from the renderer
@@ -88,4 +89,6 @@ export type RequestResponseChannels = {
   'get-current-window-state': () => Promise<WindowState | undefined>
   'get-current-window-zoom-factor': () => Promise<number | undefined>
   'resolve-proxy': (url: string) => Promise<string>
+  'is-app-in-application-folder': () => Promise<boolean | undefined>
+  'get-app-architecture': () => Promise<Architecture>
 }

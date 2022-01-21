@@ -22,9 +22,12 @@ import {
 } from '../local-storage'
 import { PushOptions } from '../git'
 import { getShowSideBySideDiff } from '../../ui/lib/diff-mode'
-import * as remote from '@electron/remote'
-import { Architecture, getArchitecture } from '../get-architecture'
+import { Architecture } from '../get-architecture'
 import { MultiCommitOperationKind } from '../../models/multi-commit-operation'
+import {
+  getAppArchitecture,
+  isAppInApplicationFolder,
+} from '../../ui/main-process-proxy'
 
 const StatsEndpoint = 'https://central.github.com/api/usage/desktop'
 
@@ -511,17 +514,15 @@ export class StatsStore implements IStatsStore {
       RepositoriesCommittedInWithoutWriteAccessKey
     ).length
     const diffMode = getShowSideBySideDiff() ? 'split' : 'unified'
-
-    // isInApplicationsFolder is undefined when not running on Darwin
     const launchedFromApplicationsFolder =
-      remote.app.isInApplicationsFolder?.() ?? null
+      (await isAppInApplicationFolder()) ?? null
 
     return {
       eventType: 'usage',
       version: getVersion(),
       osVersion: getOS(),
       platform: process.platform,
-      architecture: getArchitecture(remote.app),
+      architecture: await getAppArchitecture(),
       theme: getPersistedThemeName(),
       selectedTerminalEmulator,
       selectedTextEditor,

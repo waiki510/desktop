@@ -26,6 +26,7 @@ import { isApplicationBundle } from '../lib/is-application-bundle'
 import { installWebRequestFilters } from './install-web-request-filters'
 import * as remoteMain from '@electron/remote/main'
 import * as ipcMain from './ipc-main'
+import { getArchitecture } from '../lib/get-architecture'
 
 remoteMain.initialize()
 app.setAppLogsPath()
@@ -479,6 +480,23 @@ app.on('ready', () => {
 
   ipcMain.handle('resolve-proxy', async (_, url: string) => {
     return session.defaultSession.resolveProxy(url)
+  })
+
+  /**
+   * An event sent by the renderer asking whether the app is in the applications
+   * folder
+   *
+   * Note: This will be undefined when not running on Darwin
+   */
+  ipcMain.handle('is-app-in-application-folder', async () => {
+    return app.isInApplicationsFolder?.()
+  })
+
+  /**
+   * An event sent by the renderer asking for the app's architecture
+   */
+  ipcMain.handle('get-app-architecture', async () => {
+    return getArchitecture(app)
   })
 
   /**

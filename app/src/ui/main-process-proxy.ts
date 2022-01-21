@@ -346,3 +346,18 @@ export function sendErrorReport(
 }
 
 export const resolveProxy = invokeProxy('resolve-proxy')
+
+/**
+ * Tell the main process to obtain whether the application is in the
+ * application folder
+ *
+ * Note: will return undefined when not running on darwin
+ */
+export const isAppInApplicationFolder = invokeProxy(
+  'is-app-in-application-folder'
+)
+
+/**
+ * Tell the main process to obtain the applications architecture
+ */
+export const getAppArchitecture = invokeProxy('get-app-architecture')
