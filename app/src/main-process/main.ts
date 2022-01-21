@@ -500,6 +500,20 @@ app.on('ready', () => {
   })
 
   /**
+   * An event sent by the renderer asking to show the open dialog
+   */
+  ipcMain.handle(
+    'show-open-dialog',
+    async (_, options: Electron.OpenDialogOptions) => {
+      if (mainWindow === null) {
+        return null
+      }
+
+      return mainWindow.showOpenDialog(options)
+    }
+  )
+
+  /**
    * An event sent by the renderer asking for a copy of the current
    * application menu.
    */

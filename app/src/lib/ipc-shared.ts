@@ -91,4 +91,7 @@ export type RequestResponseChannels = {
   'resolve-proxy': (url: string) => Promise<string>
   'is-app-in-application-folder': () => Promise<boolean | undefined>
   'get-app-architecture': () => Promise<Architecture>
+  'show-open-dialog': (
+    options: Electron.OpenDialogOptions
+  ) => Promise<string | null>
 }

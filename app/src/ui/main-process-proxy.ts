@@ -361,3 +361,8 @@ export const isAppInApplicationFolder = invokeProxy(
  * Tell the main process to obtain the applications architecture
  */
 export const getAppArchitecture = invokeProxy('get-app-architecture')
+
+/**
+ * Tell the main process to show open dialog
+ */
+export const showOpenDialog = invokeProxy('show-open-dialog')

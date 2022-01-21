@@ -389,4 +389,14 @@ export class AppWindow {
   public getCurrentWindowZoomFactor() {
     return this.window.webContents.zoomFactor
   }
+
+  public async showOpenDialog(options: Electron.OpenDialogOptions) {
+    const { filePaths } = await dialog.showOpenDialog(this.window, options)
+
+    if (filePaths.length === 0) {
+      return null
+    }
+
+    return filePaths[0]
+  }
 }
