@@ -1,5 +1,4 @@
 import * as remote from '@electron/remote'
-// eslint-disable-next-line no-restricted-imports
 import { IMenuItem, ISerializableMenuItem } from '../lib/menu-item'
 import { RequestResponseChannels, RequestChannels } from '../lib/ipc-shared'
 import { ExecutableMenuItem } from '../models/app-menu'
