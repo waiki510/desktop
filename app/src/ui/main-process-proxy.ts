@@ -373,3 +373,10 @@ export const showOpenDialog = invokeProxy('show-open-dialog')
  * Returns null if filepath is undefined or if dialog is canceled.
  */
 export const showSaveDialog = invokeProxy('show-save-dialog')
+
+/**
+ * Tell the main process to select all of the current web contents
+ */
+export const selectAllCurrentWebContents = sendProxy(
+  'select-all-current-web-contents'
+)

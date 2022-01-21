@@ -412,4 +412,8 @@ export class AppWindow {
 
     return filePath
   }
+
+  public selectAllCurrentWebContents() {
+    this.window.webContents.selectAll()
+  }
 }

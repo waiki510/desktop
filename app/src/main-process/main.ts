@@ -529,6 +529,11 @@ app.on('ready', () => {
     }
   )
 
+  /** An event sent by the renderer asking to select all of the web contents */
+  ipcMain.on('select-all-current-web-contents', () => {
+    mainWindow?.selectAllCurrentWebContents()
+  })
+
   /**
    * An event sent by the renderer asking for a copy of the current
    * application menu.
