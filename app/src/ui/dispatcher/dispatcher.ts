@@ -1580,6 +1580,11 @@ export class Dispatcher {
     }
   }
 
+  public async initializeAppFocusState(): Promise<void> {
+    const isFocused = await isWindowFocused()
+    this.setAppFocusState(isFocused)
+  }
+
   /**
    * Find an existing repository that can be used for checking out
    * the passed pull request.
