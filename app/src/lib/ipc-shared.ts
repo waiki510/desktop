@@ -87,4 +87,5 @@ export type RequestResponseChannels = {
   'check-for-updates': (url: string) => Promise<Error | undefined>
   'get-current-window-state': () => Promise<WindowState | undefined>
   'get-current-window-zoom-factor': () => Promise<number | undefined>
+  'resolve-proxy': (url: string) => Promise<string>
 }

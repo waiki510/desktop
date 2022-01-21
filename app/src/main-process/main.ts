@@ -477,6 +477,10 @@ app.on('ready', () => {
     return mainWindow?.getCurrentWindowZoomFactor()
   })
 
+  ipcMain.handle('resolve-proxy', async (_, url: string) => {
+    return session.defaultSession.resolveProxy(url)
+  })
+
   /**
    * An event sent by the renderer asking for a copy of the current
    * application menu.

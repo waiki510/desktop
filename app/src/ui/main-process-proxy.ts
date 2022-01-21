@@ -344,3 +344,5 @@ export function sendErrorReport(
 ) {
   _sendErrorReport(getIpcFriendlyError(error), extra, nonFatal)
 }
+
+export const resolveProxy = invokeProxy('resolve-proxy')
