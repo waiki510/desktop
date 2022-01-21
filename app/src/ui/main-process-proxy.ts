@@ -358,6 +358,11 @@ export const isAppInApplicationFolder = invokeProxy(
 )
 
 /**
+ * Tell the main process to move the application to the application folder
+ */
+export const moveToApplicationsFolder = sendProxy('move-to-applications-folder')
+
+/**
  * Tell the main process to obtain the applications architecture
  */
 export const getAppArchitecture = invokeProxy('get-app-architecture')
@@ -380,3 +385,10 @@ export const showSaveDialog = invokeProxy('show-save-dialog')
 export const selectAllCurrentWebContents = sendProxy(
   'select-all-current-web-contents'
 )
+
+/**
+ * Tell the main process to obtain whether the window is focused.
+ *
+ * Note: If unable to determine, returns false.
+ */
+export const isWindowFocused = invokeProxy('is-window-focused')

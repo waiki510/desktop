@@ -70,6 +70,7 @@ export type RequestChannels = {
   'auto-updater-update-downloaded': () => void
   'native-theme-updated': () => void
   'select-all-current-web-contents': () => void
+  'move-to-applications-folder': () => void
 }
 
 /**
@@ -98,4 +99,5 @@ export type RequestResponseChannels = {
   'show-save-dialog': (
     options: Electron.SaveDialogOptions
   ) => Promise<string | null>
+  'is-window-focused': () => Promise<boolean>
 }

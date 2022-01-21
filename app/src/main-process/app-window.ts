@@ -416,4 +416,8 @@ export class AppWindow {
   public selectAllCurrentWebContents() {
     this.window.webContents.selectAll()
   }
+
+  public isWindowFocused() {
+    return this.window.isFocused()
+  }
 }

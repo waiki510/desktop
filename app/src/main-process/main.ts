@@ -493,6 +493,14 @@ app.on('ready', () => {
   })
 
   /**
+   * An event sent by the renderer asking to move the app to the application
+   * folder
+   */
+  ipcMain.on('move-to-applications-folder', () => {
+    app.moveToApplicationsFolder?.()
+  })
+
+  /**
    * An event sent by the renderer asking for the app's architecture
    */
   ipcMain.handle('get-app-architecture', async () => {
@@ -532,6 +540,17 @@ app.on('ready', () => {
   /** An event sent by the renderer asking to select all of the web contents */
   ipcMain.on('select-all-current-web-contents', () => {
     mainWindow?.selectAllCurrentWebContents()
+  })
+
+  /**
+   * An event sent by the renderer asking obtain whether the window is focused
+   */
+  ipcMain.handle('is-window-focused', async () => {
+    if (mainWindow === null) {
+      return false
+    }
+
+    return mainWindow.isWindowFocused()
   })
 
   /**
