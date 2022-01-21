@@ -94,4 +94,7 @@ export type RequestResponseChannels = {
   'show-open-dialog': (
     options: Electron.OpenDialogOptions
   ) => Promise<string | null>
+  'show-save-dialog': (
+    options: Electron.SaveDialogOptions
+  ) => Promise<string | null>
 }

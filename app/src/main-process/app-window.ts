@@ -399,4 +399,17 @@ export class AppWindow {
 
     return filePaths[0]
   }
+
+  public async showSaveDialog(options: Electron.SaveDialogOptions) {
+    const { canceled, filePath } = await dialog.showSaveDialog(
+      this.window,
+      options
+    )
+
+    if (canceled || filePath === undefined) {
+      return null
+    }
+
+    return filePath
+  }
 }

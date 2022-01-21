@@ -366,3 +366,10 @@ export const getAppArchitecture = invokeProxy('get-app-architecture')
  * Tell the main process to show open dialog
  */
 export const showOpenDialog = invokeProxy('show-open-dialog')
+
+/**
+ * Tell the main process to show save dialog
+ *
+ * Returns null if filepath is undefined or if dialog is canceled.
+ */
+export const showSaveDialog = invokeProxy('show-save-dialog')

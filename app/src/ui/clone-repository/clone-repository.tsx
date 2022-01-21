@@ -1,7 +1,5 @@
 import * as Path from 'path'
 import * as React from 'react'
-
-import * as remote from '@electron/remote'
 import { readdir } from 'fs-extra'
 import { Dispatcher } from '../dispatcher'
 import { getDefaultDir, setDefaultDir } from '../lib/default-dir'
@@ -25,6 +23,7 @@ import { merge } from '../../lib/merge'
 import { ClickSource } from '../lib/list'
 import { OkCancelButtonGroup } from '../dialog/ok-cancel-button-group'
 import { enableSaveDialogOnCloneRepository } from '../../lib/feature-flag'
+import { showOpenDialog, showSaveDialog } from '../main-process-proxy'
 
 interface ICloneRepositoryProps {
   readonly dispatcher: Dispatcher
@@ -512,20 +511,19 @@ export class CloneRepository extends React.Component<
   }
 
   private onChooseWithOpenDialog = async (): Promise<string | undefined> => {
-    const window = remote.getCurrentWindow()
-    const { filePaths } = await remote.dialog.showOpenDialog(window, {
+    const path = await showOpenDialog({
       properties: ['createDirectory', 'openDirectory'],
     })
 
-    if (filePaths.length === 0) {
+    if (path === null) {
       return
     }
 
     const tabState = this.getSelectedTabState()
     const lastParsedIdentifier = tabState.lastParsedIdentifier
     const directory = lastParsedIdentifier
-      ? Path.join(filePaths[0], lastParsedIdentifier.name)
-      : filePaths[0]
+      ? Path.join(path, lastParsedIdentifier.name)
+      : path
 
     this.setSelectedTabState(
       { path: directory, error: null },
@@ -536,18 +534,17 @@ export class CloneRepository extends React.Component<
   }
 
   private onChooseWithSaveDialog = async (): Promise<string | undefined> => {
-    const window = remote.getCurrentWindow()
     const tabState = this.getSelectedTabState()
-
-    const { canceled, filePath } = await remote.dialog.showSaveDialog(window, {
+    const options: Electron.SaveDialogOptions = {
       buttonLabel: 'Select',
       nameFieldLabel: 'Clone As:',
       showsTagField: false,
       defaultPath: tabState.path,
       properties: ['createDirectory'],
-    })
+    }
+    const filePath = await showSaveDialog(options)
 
-    if (canceled || filePath == null) {
+    if (filePath == null) {
       return
     }
 
