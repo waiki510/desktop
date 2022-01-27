@@ -378,3 +378,6 @@ export const showOpenDialog = invokeProxy('show-open-dialog')
 
 /** Tell the main process to obtain the app's version */
 export const getAppVersion = invokeProxy('get-app-version')
+
+/** Tell the main process to obtain the app's name */
+export const getAppName = invokeProxy('get-app-name')

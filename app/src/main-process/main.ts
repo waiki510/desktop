@@ -628,6 +628,11 @@ app.on('ready', () => {
    * An event sent by the renderer asking obtain the apps version
    */
   ipcMain.handle('get-app-version', async () => app.getVersion())
+
+  /**
+   * An event sent by the renderer asking obtain the apps name
+   */
+  ipcMain.handle('get-app-name', async () => app.getName())
 })
 
 app.on('activate', () => {

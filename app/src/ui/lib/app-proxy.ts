@@ -1,5 +1,6 @@
 import * as remote from '@electron/remote'
 import { getAppVersion } from '../main-process-proxy'
+import { getAppName } from '../main-process-proxy'
 
 let app: Electron.App | null = null
 let version: string | null = null
@@ -32,11 +33,12 @@ export async function getVersion(): Promise<string> {
 /**
  * Get the name of the app.
  *
- * This is preferable to using `remote` directly because we cache the result.
+ * This is preferable to using requesting from main process directly because we
+ * cache the result.
  */
-export function getName(): string {
+export async function getName(): Promise<string> {
   if (!name) {
-    name = getApp().getName()
+    name = await getAppName()
   }
 
   return name
