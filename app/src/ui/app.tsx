@@ -304,7 +304,8 @@ export class App extends React.Component<IAppProps, IAppState> {
     setInterval(() => this.checkForUpdates(true), UpdateCheckInterval)
     this.checkForUpdates(true)
 
-    log.info(`launching: ${getVersion()} (${getOS()})`)
+    const appVersion = await getVersion()
+    log.info(`launching: ${appVersion} (${getOS()})`)
     log.info(`execPath: '${process.execPath}'`)
 
     // Only show the popup in beta/production releases and mac machines
@@ -1510,7 +1511,9 @@ export class App extends React.Component<IAppProps, IAppState> {
           />
         )
       case PopupType.About:
-        const version = __DEV__ ? __SHA__.substr(0, 10) : getVersion()
+        const version = __DEV__
+          ? Promise.resolve(__SHA__.substr(0, 10))
+          : getVersion()
 
         return (
           <About
@@ -2895,7 +2898,8 @@ export class App extends React.Component<IAppProps, IAppState> {
 
     const { lastThankYou } = this.state
     const { login } = dotComAccount
-    if (hasUserAlreadyBeenCheckedOrThanked(lastThankYou, login, getVersion())) {
+    const appVersion = await getVersion()
+    if (hasUserAlreadyBeenCheckedOrThanked(lastThankYou, login, appVersion)) {
       return
     }
 
@@ -2908,19 +2912,14 @@ export class App extends React.Component<IAppProps, IAppState> {
     if (userContributions === null) {
       // This will prevent unnecessary release note retrieval on every time the
       // app is opened for a non-contributor.
-      updateLastThankYou(
-        this.props.dispatcher,
-        lastThankYou,
-        login,
-        getVersion()
-      )
+      updateLastThankYou(this.props.dispatcher, lastThankYou, login, appVersion)
       return
     }
 
     // If this is the first time user has seen the card, we want to thank them
     // for all previous versions. Thus, only specify current version if they
     // have been thanked before.
-    const displayVersion = isOnlyLastRelease ? getVersion() : null
+    const displayVersion = isOnlyLastRelease ? appVersion : null
     const banner: Banner = {
       type: BannerType.OpenThankYouCard,
       // Grab emoji's by reference because we could still be loading emoji's
@@ -2932,7 +2931,7 @@ export class App extends React.Component<IAppProps, IAppState> {
           this.props.dispatcher,
           lastThankYou,
           login,
-          getVersion()
+          appVersion
         )
       },
     }

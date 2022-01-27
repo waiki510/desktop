@@ -623,6 +623,11 @@ app.on('ready', () => {
     'is-window-focused',
     async () => mainWindow?.isFocused() ?? false
   )
+
+  /**
+   * An event sent by the renderer asking obtain the apps version
+   */
+  ipcMain.handle('get-app-version', async () => app.getVersion())
 })
 
 app.on('activate', () => {

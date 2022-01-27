@@ -375,3 +375,6 @@ export const showSaveDialog = invokeProxy('show-save-dialog')
  * Tell the main process to show open dialog
  */
 export const showOpenDialog = invokeProxy('show-open-dialog')
+
+/** Tell the main process to obtain the app's version */
+export const getAppVersion = invokeProxy('get-app-version')
