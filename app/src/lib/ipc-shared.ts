@@ -91,6 +91,9 @@ export type RequestResponseChannels = {
   'get-current-window-zoom-factor': () => Promise<number | undefined>
   'is-in-application-folder': () => Promise<boolean | null>
   'resolve-proxy': (url: string) => Promise<string>
+  'show-save-dialog': (
+    options: Electron.SaveDialogOptions
+  ) => Promise<string | null>
   'show-open-dialog': (
     options: Electron.OpenDialogOptions
   ) => Promise<string | null>
