@@ -87,6 +87,7 @@ export type RequestResponseChannels = {
   'check-for-updates': (url: string) => Promise<Error | undefined>
   'get-current-window-state': () => Promise<WindowState | undefined>
   'get-current-window-zoom-factor': () => Promise<number | undefined>
+  'is-in-application-folder': () => Promise<boolean | null>
   'resolve-proxy': (url: string) => Promise<string>
   'show-open-dialog': (
     options: Electron.OpenDialogOptions
