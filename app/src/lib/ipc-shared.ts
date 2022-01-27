@@ -9,6 +9,7 @@ import { WindowState } from './window-state'
 import { IMenu } from '../models/app-menu'
 import { ILaunchStats } from './stats'
 import { URLActionType } from './parse-app-url'
+import { Architecture } from './get-architecture'
 
 /**
  * Defines the simplex IPC channel names we use from the renderer
@@ -78,6 +79,7 @@ export type RequestChannels = {
  * Return signatures must be promises
  */
 export type RequestResponseChannels = {
+  'get-app-architecture': () => Promise<Architecture>
   'move-to-trash': (path: string) => Promise<void>
   'show-contextual-menu': (
     items: ReadonlyArray<ISerializableMenuItem>

@@ -25,6 +25,7 @@ import { stat } from 'fs-extra'
 import { isApplicationBundle } from '../lib/is-application-bundle'
 import { installWebRequestFilters } from './install-web-request-filters'
 import * as ipcMain from './ipc-main'
+import { getArchitecture } from '../lib/get-architecture'
 import * as remoteMain from '@electron/remote/main'
 remoteMain.initialize()
 
@@ -497,6 +498,11 @@ app.on('ready', () => {
       return false
     }
   })
+
+  /**
+   * An event sent by the renderer asking for the app's architecture
+   */
+  ipcMain.handle('get-app-architecture', async () => getArchitecture(app))
 
   /**
    * An event sent by the renderer asking to move the app to the application
