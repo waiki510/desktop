@@ -329,4 +329,40 @@ export class AppWindow {
 
     return filePaths[0]
   }
+
+  public replaceMisspelling(suggestion: string) {
+    this.window.webContents.replaceMisspelling(suggestion)
+  }
+
+  public addWordToSpellCheckerDictionary(misspelledWord: string) {
+    this.window.webContents.session.addWordToSpellCheckerDictionary(
+      misspelledWord
+    )
+  }
+
+  public getSpellCheckerLanguages() {
+    return this.window.webContents.session.getSpellCheckerLanguages()
+  }
+
+  public setSpellCheckerLanguages(languages: string[]) {
+    this.window.webContents.session.setSpellCheckerLanguages(languages)
+  }
+
+  public addContextMenuListenerOnce(
+    listener: (
+      event: Electron.Event,
+      params: Electron.ContextMenuParams
+    ) => Promise<void>
+  ) {
+    this.window.webContents.once('context-menu', listener)
+  }
+
+  public removeContextMenuListenerOnce(
+    listener: (
+      event: Electron.Event,
+      params: Electron.ContextMenuParams
+    ) => Promise<void>
+  ) {
+    this.window.webContents.off('context-menu', listener)
+  }
 }

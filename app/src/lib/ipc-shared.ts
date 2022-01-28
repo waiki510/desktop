@@ -56,6 +56,9 @@ export type RequestChannels = {
   focus: () => void
   blur: () => void
   'move-to-applications-folder': () => void
+  'replace-misspelling': (suggestion: string) => void
+  'add-word-to-spell-checker-dictionary': (misspelledWord: string) => void
+  'set-spell-checker-languages': (languages: string[]) => void
 }
 
 /**
@@ -69,7 +72,8 @@ export type RequestChannels = {
 export type RequestResponseChannels = {
   'move-to-trash': (path: string) => Promise<void>
   'show-contextual-menu': (
-    items: ReadonlyArray<ISerializableMenuItem>
+    items: ReadonlyArray<ISerializableMenuItem>,
+    mergeWithSpellcheckSuggestions: boolean
   ) => Promise<ReadonlyArray<number> | null>
   'is-window-focused': () => Promise<boolean>
   'open-external': (path: string) => Promise<boolean>
@@ -77,4 +81,8 @@ export type RequestResponseChannels = {
   'show-open-dialog': (
     options: Electron.OpenDialogOptions
   ) => Promise<string | null>
+  'get-app-version': () => Promise<string>
+  'get-app-name': () => Promise<string>
+  'get-app-locale': () => Promise<string>
+  'get-spell-checker-languages': () => Promise<ReadonlyArray<string>>
 }

@@ -25,6 +25,9 @@ import { stat } from 'fs-extra'
 import { isApplicationBundle } from '../lib/is-application-bundle'
 import { installWebRequestFilters } from './install-web-request-filters'
 import * as ipcMain from './ipc-main'
+import * as remoteMain from '@electron/remote/main'
+import { IMenuItem, ISerializableMenuItem } from '../lib/menu-item'
+remoteMain.initialize()
 
 app.setAppLogsPath()
 enableSourceMaps()
@@ -266,6 +269,124 @@ if (process.env.GITHUB_DESKTOP_DISABLE_HARDWARE_ACCELERATION) {
   app.disableHardwareAcceleration()
 }
 
+let deferredContextMenuItems: ReadonlyArray<IMenuItem> | null = null
+
+/** Takes a context menu and spelling suggestions from electron and merges them
+ * into one context menu. */
+async function mergeDeferredContextMenuItems(
+  event: Electron.Event,
+  params: Electron.ContextMenuParams
+) {
+  if (deferredContextMenuItems === null) {
+    return
+  }
+
+  const items = [...deferredContextMenuItems]
+  const { misspelledWord, dictionarySuggestions } = params
+
+  if (!misspelledWord && dictionarySuggestions.length === 0) {
+    showContextualMenu(items, false)
+    return
+  }
+
+  items.push({ type: 'separator', action: undefined })
+
+  for (const suggestion of dictionarySuggestions) {
+    items.push({
+      label: suggestion,
+      action: () => mainWindow?.replaceMisspelling(suggestion),
+    })
+  }
+
+  if (misspelledWord) {
+    items.push({
+      label: __DARWIN__ ? 'Add to Dictionary' : 'Add to dictionary',
+      action: () => mainWindow?.addWordToSpellCheckerDictionary(misspelledWord),
+    })
+  }
+
+  if (!__DARWIN__) {
+    // NOTE: "On macOS as we use the native APIs there is no way to set the
+    // language that the spellchecker uses" -- electron docs Therefore, we are
+    // only allowing setting to English for non-mac machines.
+    const spellCheckLanguageItem = await getSpellCheckLanguageMenuItem()
+    if (spellCheckLanguageItem !== null) {
+      items.push(spellCheckLanguageItem)
+    }
+  }
+
+  showContextualMenu(items, false)
+}
+
+/**
+ * Method to get a menu item to give user the option to use English or their
+ * system language.
+ *
+ * If system language is english, it returns null. If spellchecker is not set to
+ * english, it returns item that can set it to English. If spellchecker is set
+ * to english, it returns the item that can set it to their system language.
+ */
+async function getSpellCheckLanguageMenuItem(): Promise<IMenuItem | null> {
+  const userLanguageCode = app.getLocale()
+  const englishLanguageCode = 'en-US'
+  const spellcheckLanguageCodes = mainWindow?.getSpellCheckerLanguages() ?? []
+
+  if (
+    userLanguageCode === englishLanguageCode &&
+    spellcheckLanguageCodes.includes(englishLanguageCode)
+  ) {
+    return null
+  }
+
+  const languageCode =
+    spellcheckLanguageCodes.includes(englishLanguageCode) &&
+    !spellcheckLanguageCodes.includes(userLanguageCode)
+      ? userLanguageCode
+      : englishLanguageCode
+
+  const label =
+    languageCode === englishLanguageCode
+      ? 'Set spellcheck to English'
+      : 'Set spellcheck to system language'
+
+  return {
+    label,
+    action: () => mainWindow?.setSpellCheckerLanguages([languageCode]),
+  }
+}
+
+function showContextualMenu(
+  event: Electron.IpcMainInvokeEvent,
+  items: ISerializableMenuItem[],
+  mergeWithSpellcheckSuggestions: boolean,
+  spellCheckMenuItems?: IMenuItem[]
+) {
+  /*
+    When a user right clicks on a misspelled word in an input, we get event from
+    electron. That event comes after the context menu event that we get from the
+    dom. In order merge the spelling suggestions from electron with the context
+    menu that the input wants to show, we stash the context menu items from the
+    input away while we wait for the event from electron.
+  */
+  if (deferredContextMenuItems !== null) {
+    deferredContextMenuItems = null
+    mainWindow?.removeContextMenuListenerOnce(mergeDeferredContextMenuItems)
+  }
+
+  if (mergeWithSpellcheckSuggestions) {
+    deferredContextMenuItems = items
+    mainWindow?.addContextMenuListenerOnce(mergeDeferredContextMenuItems)
+    return
+  }
+
+  return new Promise(resolve => {
+    const menu = buildContextMenu(items, indices => resolve(indices))
+    const window = BrowserWindow.fromWebContents(event.sender) || undefined
+
+    menu.popup({ window, callback: () => resolve(null) })
+  })
+}
+
 app.on('ready', () => {
   if (isDuplicateInstance || handlingSquirrelEvent) {
     return
@@ -422,14 +543,12 @@ app.on('ready', () => {
    * the menu (or submenu) item that was clicked or null if the menu
    * was closed without clicking on any item.
    */
-  ipcMain.handle('show-contextual-menu', (event, items) => {
-    return new Promise(resolve => {
-      const menu = buildContextMenu(items, indices => resolve(indices))
-      const window = BrowserWindow.fromWebContents(event.sender) || undefined
-
-      menu.popup({ window, callback: () => resolve(null) })
-    })
-  })
+  ipcMain.handle(
+    'show-contextual-menu',
+    (event, items, mergeWithSpellcheckSuggestions) => {
+      return showContextualMenu(event, items, mergeWithSpellcheckSuggestions)
+    }
+  )
 
   /**
    * An event sent by the renderer asking for a copy of the current
@@ -572,6 +691,56 @@ app.on('ready', () => {
   ipcMain.handle(
     'is-window-focused',
     async () => mainWindow?.isFocused() ?? false
+  )
+
+  /**
+   * An event sent by the renderer asking obtain the apps version
+   */
+  ipcMain.handle('get-app-version', async () => app.getVersion())
+
+  /**
+   * An event sent by the renderer asking obtain the apps name
+   */
+  ipcMain.handle('get-app-name', async () => app.getName())
+
+  /**
+   * An event sent by the renderer asking obtain the apps locale
+   */
+  ipcMain.handle('get-app-locale', async () => app.getLocale())
+
+  /**
+   * An event sent by the renderer asking to replace a misspelling with a
+   * suggestion
+   */
+  ipcMain.on('replace-misspelling', async (_, suggestion) =>
+    mainWindow?.replaceMisspelling(suggestion)
+  )
+
+  /**
+   * An event sent by the renderer asking to add a misspelled word to spell
+   * checker dictionary
+   */
+  ipcMain.on(
+    'add-word-to-spell-checker-dictionary',
+    async (_, misspelledWord) =>
+      mainWindow?.addWordToSpellCheckerDictionary(misspelledWord)
+  )
+
+  /**
+   * An event sent by the renderer asking to add a misspelled word to spell
+   * checker dictionary
+   */
+  ipcMain.handle(
+    'get-spell-checker-languages',
+    async () => mainWindow?.getSpellCheckerLanguages() ?? []
+  )
+
+  /**
+   * An event sent by the renderer asking to add a misspelled word to spell
+   * checker dictionary
+   */
+  ipcMain.on('set-spell-checker-languages', async (_, languages) =>
+    mainWindow?.setSpellCheckerLanguages(languages)
   )
 })
 
